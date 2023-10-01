@@ -1,14 +1,17 @@
 import React from 'react';
 // import PropTypes from 'prop-types';
-import { useSelector } from 'react-redux/es/hooks/useSelector';
+
 import ContactItem from './ContactItem/ContactItem';
 import styles from './ContactList.module.css';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact } from 'redux/operations';
+import { selectFilter } from 'redux/selectors';
 
-export default function ContactList({ onDeleteContact }) {
-  const contacts = useSelector(state => state.contacts.items);
-  const filter = useSelector(state => state.contacts.filter);
+export default function ContactList({ contacts }) {
+  const dispatch = useDispatch();
+  const filter = useSelector(selectFilter);
 
-  const filteredContacts = contacts.filter(
+  const filteredContacts = contacts?.filter(
     contact =>
       contact.name && contact.name.toLowerCase().includes(filter.toLowerCase())
   );
@@ -19,8 +22,8 @@ export default function ContactList({ onDeleteContact }) {
         <li key={contact.id}>
           <ContactItem contact={contact} />
           <button
+            onClick={() => dispatch(deleteContact(contact.id))}
             className={styles.button}
-            onClick={() => onDeleteContact(contact.id)}
           >
             Delete
           </button>

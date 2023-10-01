@@ -1,63 +1,44 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  // fetchContactsError,
-  fetchContactsSucces,
-  setFilter,
-  // fetchContactsStart,
-  createContact,
-} from 'redux/contactsSlice';
+// import  fetchContactsError,
+// fetchContactsSucces,
+// setFilter,
+// fetchContactsStart,
+// createContact,
+// 'redux/contactsSlice';
 import { fetchContacts } from './redux/operations';
 import ContactForm from './components/ContactForm/ContactForm';
 import ContactList from 'components/ContactList/ContactList';
 import Filter from './components/ContactList/Filter/Filter';
 import styles from './App.module.css';
-import { contactApi } from 'api/api';
+// import { contactApi } from 'api/api';
+import { selectContact, selectIsLoading } from 'redux/selectors';
+
 export default function App() {
   const dispatch = useDispatch();
-  const contacts = useSelector(state => state.contacts.items);
-  const filter = useSelector(state => state.contacts.filter);
+  const contacts = useSelector(selectContact);
+  const isLoading = useSelector(selectIsLoading);
+
   useEffect(() => {
-    // console.log('Filter:', filter);
-    // console.log('Contacts:', contacts);
-    const fetchData = async () => {
-      dispatch(fetchContacts());
-    };
-    fetchData();
-  }, [dispatch, contacts, filter]);
-  const handleAddContact = async newContact => {
-    try {
-      const response = await createContact(newContact);
-      dispatch(fetchContactsSucces([...contacts, response.data]));
-    } catch (error) {
-      console.log('Error creating contact:', error);
-    }
-  };
-  const handleDeleteContact = async contactId => {
-    try {
-      await contactApi.delete(contactId);
-      //  dispatch(deleteContact(contactId));
-    } catch (error) {
-      console.error('Error deleting contact:', error);
-    }
-  };
-  const handleFilterChange = value => {
-    dispatch(setFilter(value));
-  };
+    dispatch(fetchContacts());
+  }, [dispatch]);
+
   return (
     <div className="App">
       <div className={styles.phonebook}>
         <h1>Phonebook</h1>
-        <ContactForm onSubmit={handleAddContact} />
+        <ContactForm />
       </div>
+
       <div className={styles.contacts}>
         <h2>Contacts</h2>
-        <Filter value={filter} onChange={handleFilterChange} />
-        <ContactList
-          contacts={contacts}
-          filter={filter}
-          onDeleteContact={handleDeleteContact}
-        />
+        <Filter />
+
+        {isLoading ? (
+          <p>Loading contanct</p>
+        ) : (
+          <ContactList contacts={contacts} />
+        )}
       </div>
     </div>
   );

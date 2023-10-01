@@ -1,13 +1,13 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { setFilter, filterContacts } from 'redux/contactsSlice';
+
+import { setFilter } from 'redux/operations';
 
 export default function Filter() {
   const dispatch = useDispatch();
 
   const handleFilterChange = value => {
     dispatch(setFilter(value));
-    dispatch(filterContacts(value));
   };
 
   return (
@@ -16,7 +16,6 @@ export default function Filter() {
       <input
         type="text"
         id="filter"
-        // value={value}
         onChange={e => handleFilterChange(e.target.value)}
         placeholder="Search by name"
       />

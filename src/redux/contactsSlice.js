@@ -1,57 +1,17 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { contactApi } from 'api/api';
-// import { getState } from 'redux';
-import { fetchContacts } from './operations';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-
-// export const fetchContacts = createAsyncThunk(
-//   'contacts/fetchContacts',
-//   async () => {
-//     try {
-//       const response = await contactApi.getAll();
-//       return response.data;
-//     } catch (error) {
-//       throw error;
-//     }
-//   }
-// );
+import { createContact, deleteContact, fetchContacts } from './operations';
 
 const contactsSlice = createSlice({
   name: 'contacts',
   initialState: {
     items: [],
-    isLoading: false,
+    isLoading: true,
     error: null,
     filter: '',
   },
   reducers: {
-    fetchContactsStart: state => {
-      state.isLoading = true;
-    },
-
-    fetchContactsSucces: (state, action) => {
-      state.items = action.payload;
-      state.isLoading = false;
-      state.error = null;
-    },
-
-    fetchContactsError: (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    },
-
     setFilter: (state, action) => {
       state.filter = action.payload;
-    },
-
-    filterContacts: state => {
-      state.items = state.items.filter(contact =>
-        contact.name.toLowerCase().includes(state.filter.toLowerCase())
-      );
-    },
-
-    createContactError: (state, action) => {
-      state.error = action.payload;
     },
   },
 
@@ -68,41 +28,34 @@ const contactsSlice = createSlice({
       .addCase(fetchContacts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message;
+      })
+      .addCase(deleteContact.pending, state => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = state.items?.filter(
+          contact => contact.id !== action.payload.id
+        );
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
+      })
+      .addCase(createContact.pending, state => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(createContact.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items.push(action.payload);
+      })
+      .addCase(createContact.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message;
       });
   },
 });
-
-export const {
-  fetchContactsStart,
-  fetchContactsSucces,
-  fetchContactsError,
-  setFilter,
-  filterContacts,
-} = contactsSlice.actions;
-
-// export const applyFilter = filter => dispatch => {
-//   dispatch(setFilter(filter));
-//   dispatch(filterContacts());
-// };
-
-export const setFilterAndFilterContacts = filter => dispatch => {
-  dispatch(setFilter(filter));
-  dispatch(filterContacts());
-};
-
-export const createContact = createAsyncThunk(
-  'contacts/createContact',
-  async (contactData, { getState, dispatch }) => {
-    try {
-      const response = await contactApi.create(contactData);
-      dispatch(
-        fetchContactsSucces([...getState().contacts.items, response.data])
-      );
-    } catch (error) {
-      console.error('Error creating contact:', error);
-      // dispatch(createContactError(error.message));
-    }
-  }
-);
 
 export default contactsSlice.reducer;

@@ -1,10 +1,11 @@
 import React from 'react';
-import { nanoid } from 'nanoid';
-import PropTypes from 'prop-types';
 import { Formik, Form, Field } from 'formik';
 import styles from './ContactForm.module.css';
+import { useDispatch } from 'react-redux';
+import { createContact } from 'redux/operations';
 
-export default function ContactForm({ onSubmit }) {
+export default function ContactForm() {
+  const dispatch = useDispatch();
   const initialValues = {
     name: '',
     number: '',
@@ -12,12 +13,10 @@ export default function ContactForm({ onSubmit }) {
 
   const handleSubmit = (values, actions) => {
     const newContact = {
-      id: nanoid(),
       name: values.name,
       number: values.number,
     };
-
-    onSubmit(newContact);
+    dispatch(createContact(newContact));
     actions.resetForm();
   };
 
@@ -51,11 +50,3 @@ export default function ContactForm({ onSubmit }) {
     </Formik>
   );
 }
-
-// *
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
-};
-
-// *
